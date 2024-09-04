@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -10,6 +10,13 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: "Name",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 6),
             TextField(
               decoration: InputDecoration(
                 labelText: "E-mail",
@@ -27,13 +34,11 @@ class LoginPage extends StatelessWidget {
             SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {},
-              child: Text("Login"),
+              child: Text("Register"),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
-              child: Text("New User"),
+              onPressed: () {},
+              child: Text("Back to login"),
             ),
           ],
         ),
