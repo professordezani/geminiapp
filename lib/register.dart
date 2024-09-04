@@ -37,7 +37,9 @@ class RegisterPage extends StatelessWidget {
               child: Text("Register"),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: Text("Back to login"),
             ),
           ],
