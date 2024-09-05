@@ -33,7 +33,11 @@ class RegisterPage extends StatelessWidget {
             ),
             SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context)
+                ..pop()
+                ..pushReplacementNamed('/lista');
+              },
               child: Text("Register"),
             ),
             TextButton(
