@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -7,24 +10,42 @@ import 'dart:io';
 
 const String apiKey = 'AIzaSyBZNtpoclq_GC2dOs6xQ4V62lRFdNo4VbY';
 
-class ListaPage extends StatefulWidget {
-  @override
-  State<ListaPage> createState() => _ListaPageState();
-}
-
-class _ListaPageState extends State<ListaPage> {
-  String result = 'Resultado';
+class ListaPage extends StatelessWidget {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   Future predictPlant(File image) async {
-    // set Gemini Model and it API KEY
+    final schema = Schema.object(
+      properties: {
+        'recognized': Schema.boolean(
+            description: 'Indica se reconheceu uma planta ou não na imagem.',
+            nullable: false),
+        'plant_name':
+            Schema.string(description: 'Nome da planta.', nullable: true),
+        'healthy': Schema.boolean(
+            description: 'Indica se planta está saudável ou não.',
+            nullable: true),
+        'disease_description': Schema.string(
+            description: 'Descrição da doença ou mal cuidados reconhecidos.',
+            nullable: true),
+        'care_to_take': Schema.string(
+            description: 'Descrição de como cuidar para recuperação da planta.',
+            nullable: true),
+      },
+      requiredProperties: ['recognized', 'plant_name', 'healthy'],
+    );
+
     final model = GenerativeModel(
       model: 'gemini-1.5-flash',
       apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        responseMimeType: 'application/json',
+        responseSchema: schema,
+      ),
     );
 
     // set the LLM prompt
     final prompt =
-        'Você é um especialista em botânica. Eu vou te enviar uma imagem de uma planta e você me responde, apenas se houver uma planta na image, qual é a planta e se ela está saudável ou não. Caso não esteja saudável, me dê dicas para melhorar sua saúde. Caso não encontre uma planta, retorne "Não encontrei nenhuma planta na imagem".';
+        'Você é um especialista em botânica. Eu vou te enviar uma imagem de uma planta e você me responde, apenas se houver uma planta na image, qual é a planta e se ela está saudável ou não. Caso não esteja saudável, indique a doença e me dê dicas para melhorar sua saúde. Caso não encontre uma planta, retorne "Não encontrei nenhuma planta na imagem".';
 
     var imageInBytes = await image.readAsBytes();
 
@@ -37,11 +58,12 @@ class _ListaPageState extends State<ListaPage> {
 
     final response = await model.generateContent(content);
 
+    print(response.text);
     return response.text;
   }
 
   Future<File?> takePicture() async {
-    var photo = await ImagePicker().pickImage(source: ImageSource.gallery);
+    var photo = await ImagePicker().pickImage(source: ImageSource.camera);
     if (photo == null) return null;
     return File(photo.path);
   }
@@ -49,15 +71,16 @@ class _ListaPageState extends State<ListaPage> {
   Future verifyPlant() async {
     var image = await takePicture();
     if (image == null) return null;
-    String resultado = await predictPlant(image);
-    setState(() => result = resultado);
+    String inference = await predictPlant(image);
+
+    firestore.collection('inferences').add(json.decode(inference));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gemini'),
+        title: Text('Green Guide'),
         actions: [
           IconButton(
             onPressed: () {
@@ -67,34 +90,31 @@ class _ListaPageState extends State<ListaPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Flexible(
-            child: Container(
-              // height: 50,
-              width: double.infinity,
-              color: Colors.grey[200],
-              child: MarkdownBody(
-                data: result,
-              ),
-            ),
-          ),
-          Flexible(
-            child: ListView(
-              children: [
-                ListTile(
-                  title: Text("Girassol"),
-                  subtitle: Text("Ela está saudável"),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                        'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: firestore.collection('inferences').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            var documents = snapshot.data!.docs;
+
+            return ListView(
+                children: documents
+                    .map((doc) => ListTile(
+                          title: Text(doc['plant_name']),
+                          subtitle: doc['healthy'] == true
+                              ? Text("Ela está saudável",
+                                  style: TextStyle(color: Colors.green[900]))
+                              : Text("Ela não está saudável.",
+                                  style: TextStyle(color: Colors.red)),
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(
+                                'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
+                          ),
+                        ))
+                    .toList());
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () => verifyPlant(),
         child: Icon(Icons.camera_alt),

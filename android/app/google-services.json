@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "432716235741",
+    "project_id": "greenguide-ai",
+    "storage_bucket": "greenguide-ai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432716235741:android:66aef752ad035edf902c34",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgoTZ6DuC2eaZhEELoVyFzqban0g5_ebc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
