@@ -27,74 +27,12 @@ class ListaPage extends StatelessWidget {
                   'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
             ),
           ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
-          ListTile(
-            title: Text("Girassol"),
-            subtitle: Text("Ela está saudável"),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://s1.static.brasilescola.uol.com.br/be/2023/09/vista-aproximada-de-um-girassol-em-uma-plantacao-de-girassois.jpg'),
-            ),
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushNamed(context, '/details');
+        },
         child: Icon(Icons.camera_alt),
       ),
     );
