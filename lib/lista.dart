@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
@@ -68,12 +67,22 @@ class ListaPage extends StatelessWidget {
     return File(photo.path);
   }
 
-  Future verifyPlant() async {
+  Future verifyPlant(BuildContext context) async {
     var image = await takePicture();
     if (image == null) return null;
     String inference = await predictPlant(image);
 
-    firestore.collection('inferences').add(json.decode(inference));
+    var plant_value = json.decode(inference);
+    if (plant_value['recognized']) {
+      plant_value['image'] = image;
+      Navigator.pushNamed(context, '/details', arguments: plant_value);
+    } else {
+      var snackBar = SnackBar(
+        content: Text('Nenhuma planta encontrada.'),
+        backgroundColor: Colors.red,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override
@@ -116,7 +125,7 @@ class ListaPage extends StatelessWidget {
                     .toList());
           }),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => verifyPlant(),
+        onPressed: () => verifyPlant(context),
         child: Icon(Icons.camera_alt),
       ),
     );
