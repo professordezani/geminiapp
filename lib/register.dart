@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterPage extends StatelessWidget {
   @override
@@ -34,9 +35,14 @@ class RegisterPage extends StatelessWidget {
             SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
+                FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  email: 'ciclano@email.com',
+                  password: '123456',
+                );
+
                 Navigator.of(context)
-                ..pop()
-                ..pushReplacementNamed('/lista');
+                  ..pop()
+                  ..pushReplacementNamed('/lista');
               },
               child: Text("Register"),
             ),
