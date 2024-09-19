@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterPage extends StatelessWidget {
+  TextEditingController txtEmail = TextEditingController();
+  TextEditingController txtPassword = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,6 +22,7 @@ class RegisterPage extends StatelessWidget {
             ),
             SizedBox(height: 6),
             TextField(
+              controller: txtEmail,
               decoration: InputDecoration(
                 labelText: "E-mail",
                 border: OutlineInputBorder(),
@@ -26,6 +30,7 @@ class RegisterPage extends StatelessWidget {
             ),
             SizedBox(height: 6),
             TextField(
+              controller: txtPassword,
               decoration: InputDecoration(
                 labelText: "Password",
                 border: OutlineInputBorder(),
@@ -34,15 +39,20 @@ class RegisterPage extends StatelessWidget {
             ),
             SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () {
-                FirebaseAuth.instance.createUserWithEmailAndPassword(
-                  email: 'ciclano@email.com',
-                  password: '123456',
-                );
+              onPressed: () async {
+                try {
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    email: txtEmail.text,
+                    password: txtPassword.text,
+                  );
 
-                Navigator.of(context)
-                  ..pop()
-                  ..pushReplacementNamed('/lista');
+                  Navigator.of(context)
+                    ..pop()
+                    ..pushReplacementNamed('/lista');
+                } on FirebaseAuthException catch (e) {
+                  var snackBar = SnackBar(content: Text(e.message!));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
               },
               child: Text("Register"),
             ),
