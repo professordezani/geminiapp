@@ -6,7 +6,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-const String apiKey = 'AIzaSyBZNtpoclq_GC2dOs6xQ4V62lRFdNo4VbY';
+const String apiKey = '';
 
 class ListaPage extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -124,9 +124,7 @@ class ListaPage extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/details');
-        },
+        onPressed: () => verifyPlant(context),
         child: Icon(Icons.camera_alt),
       ),
     );

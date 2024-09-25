@@ -14,6 +14,7 @@ class LoginPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextField(
+              controller: txtEmail,
               decoration: InputDecoration(
                 labelText: "E-mail",
                 border: OutlineInputBorder(),
@@ -21,6 +22,7 @@ class LoginPage extends StatelessWidget {
             ),
             SizedBox(height: 6),
             TextField(
+              controller: txtPassword,
               decoration: InputDecoration(
                 labelText: "Password",
                 border: OutlineInputBorder(),
@@ -36,8 +38,7 @@ class LoginPage extends StatelessWidget {
                     password: txtPassword.text,
                   );
 
-                  Navigator.of(context)
-                    .pushReplacementNamed('/lista');
+                  Navigator.of(context).pushReplacementNamed('/lista');
                 } on FirebaseAuthException catch (e) {
                   var snackBar = SnackBar(content: Text(e.message!));
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
