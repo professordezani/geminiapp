@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,10 +15,10 @@ class GenAiPage extends StatefulWidget {
 }
 
 class _GenAiPageState extends State<GenAiPage> {
-  File? file;
+  Image? image;
   Map<String, dynamic>? inferenceJson;
 
-  Future predictPlant(File image) async {
+  Future predictPlant(Uint8List image) async {
     final schema = Schema.object(
       properties: {
         'recognized': Schema.boolean(
@@ -51,27 +52,26 @@ class _GenAiPageState extends State<GenAiPage> {
     final prompt =
         'Você é um especialista em botânica. Eu vou te enviar uma imagem de uma planta e você me responde, apenas se houver uma planta na image, qual é a planta e se ela está saudável ou não. Caso não esteja saudável, indique a doença e me dê dicas para melhorar sua saúde. Caso não encontre uma planta, retorne "Não encontrei nenhuma planta na imagem".';
 
-    var imageInBytes = await image.readAsBytes();
+    // var imageInBytes = await image.readAsBytes();
 
     final content = [
       Content.multi([
         TextPart(prompt),
-        DataPart('image/jpeg', imageInBytes),
+        DataPart('image/jpeg', image),
       ])
     ];
 
     final response = await model.generateContent(content);
 
-    print(response.text);
     return response.text;
   }
 
-  Future<File?> takePicture() async {
+  Future<Uint8List?> takePicture() async {
     var photo = await ImagePicker().pickImage(source: ImageSource.camera);
     if (photo == null) {
       throw Exception('Não foi possível capturar a imagem.');
     }
-    return File(photo.path);
+    return await photo.readAsBytes();
   }
 
   Future verifyPlant(BuildContext context) async {
@@ -86,9 +86,13 @@ class _GenAiPageState extends State<GenAiPage> {
 
       setState(() {
         inferenceJson = json.decode(inference!);
-        file = image;
+        this.image = Image.network(
+          image.toString(),
+          fit: BoxFit.cover,
+        );
       });
     } on Exception catch (ex) {
+      print(ex);
       var snackBar = SnackBar(
         content: Text(ex.toString()),
         backgroundColor: Colors.red,
@@ -121,10 +125,7 @@ class _GenAiPageState extends State<GenAiPage> {
                   children: [
                     AspectRatio(
                       aspectRatio: 5 / 4,
-                      child: Image.file(
-                        file!,
-                        fit: BoxFit.cover,
-                      ),
+                      child: image,
                     ),
                     SizedBox(
                       height: 10,
