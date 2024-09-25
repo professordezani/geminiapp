@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'login.dart';
 import 'register.dart';
-import 'lista.dart';
+import 'gen-ai.dart';
 import 'details.dart';
 
 class App extends StatelessWidget {
@@ -14,7 +14,7 @@ class App extends StatelessWidget {
       routes: {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
-        '/lista': (context) => ListaPage(),
+        '/lista': (context) => GenAiPage(),
         '/details': (context) => DetailsPage(),
       },
       initialRoute: '/login',

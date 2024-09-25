@@ -1,15 +1,21 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-const String apiKey = '';
+const String apiKey = 'AIzaSyAMQjZV5-cWYgscpcIjiWhWJRzu072I3dQ';
 
-class ListaPage extends StatelessWidget {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+class GenAiPage extends StatefulWidget {
+  @override
+  State<GenAiPage> createState() => _GenAiPageState();
+}
+
+class _GenAiPageState extends State<GenAiPage> {
+  File? file;
+  Map<String, dynamic>? inferenceJson;
 
   Future predictPlant(File image) async {
     final schema = Schema.object(
@@ -62,22 +68,29 @@ class ListaPage extends StatelessWidget {
 
   Future<File?> takePicture() async {
     var photo = await ImagePicker().pickImage(source: ImageSource.camera);
-    if (photo == null) return null;
+    if (photo == null) {
+      throw Exception('Não foi possível capturar a imagem.');
+    }
     return File(photo.path);
   }
 
   Future verifyPlant(BuildContext context) async {
-    var image = await takePicture();
-    if (image == null) return null;
-    String inference = await predictPlant(image);
+    try {
+      var image = await takePicture();
 
-    var plant_value = json.decode(inference);
-    if (plant_value['recognized']) {
-      plant_value['image'] = image;
-      Navigator.pushNamed(context, '/details', arguments: plant_value);
-    } else {
+      var inference = await predictPlant(image!);
+
+      if (inference == null) {
+        throw Exception('Não foi possível processar a imagem.');
+      }
+
+      setState(() {
+        inferenceJson = json.decode(inference!);
+        file = image;
+      });
+    } on Exception catch (ex) {
       var snackBar = SnackBar(
-        content: Text('Nenhuma planta encontrada.'),
+        content: Text(ex.toString()),
         backgroundColor: Colors.red,
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -98,31 +111,51 @@ class ListaPage extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: firestore.collection('inferences').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          var documents = snapshot.data!.docs;
-
-          return ListView(
-            children: documents
-                .map(
-                  (doc) => ListTile(
-                    title: Text(doc['plant_name']),
-                    subtitle: doc['healthy'] == true
-                        ? Text("Ela está saudável",
-                            style: TextStyle(color: Colors.green[900]))
-                        : Text("Ela não está saudável.",
-                            style: TextStyle(color: Colors.red)),
-                  ),
-                )
-                .toList(),
-          );
-        },
-      ),
+      body: inferenceJson == null
+          ? Container()
+          : SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 5 / 4,
+                      child: Image.file(
+                        file!,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(inferenceJson!['plant_name'],
+                            style: TextStyle(
+                              fontSize: 22,
+                            )),
+                        Icon(inferenceJson!['healthy']
+                            ? Icons.check_circle_outline
+                            : Icons.local_hospital),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      inferenceJson!['disease_description'] ?? '',
+                      style: TextStyle(color: Colors.red[700]),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    MarkdownBody(data: inferenceJson!['care_to_take'] ?? '')
+                  ],
+                ),
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => verifyPlant(context),
         child: Icon(Icons.camera_alt),
