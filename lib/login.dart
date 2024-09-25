@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
+  TextEditingController txtEmail = TextEditingController();
+  TextEditingController txtPassword = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,8 +29,19 @@ class LoginPage extends StatelessWidget {
             ),
             SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/lista');
+              onPressed: () async {
+                try {
+                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: txtEmail.text,
+                    password: txtPassword.text,
+                  );
+
+                  Navigator.of(context)
+                    .pushReplacementNamed('/lista');
+                } on FirebaseAuthException catch (e) {
+                  var snackBar = SnackBar(content: Text(e.message!));
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                }
               },
               child: Text("Login"),
             ),
