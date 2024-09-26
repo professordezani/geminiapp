@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 const String apiKey = 'AIzaSyAMQjZV5-cWYgscpcIjiWhWJRzu072I3dQ';
 
@@ -17,6 +16,7 @@ class GenAiPage extends StatefulWidget {
 class _GenAiPageState extends State<GenAiPage> {
   Image? image;
   Map<String, dynamic>? inferenceJson;
+  bool loading = false;
 
   Future predictPlant(Uint8List image) async {
     final schema = Schema.object(
@@ -76,6 +76,8 @@ class _GenAiPageState extends State<GenAiPage> {
 
   Future verifyPlant(BuildContext context) async {
     try {
+      setState(() => loading = true);
+
       var image = await takePicture();
 
       var inference = await predictPlant(image!);
@@ -86,18 +88,19 @@ class _GenAiPageState extends State<GenAiPage> {
 
       setState(() {
         inferenceJson = json.decode(inference!);
-        this.image = Image.network(
-          image.toString(),
+        this.image = Image.memory(
+          image,
           fit: BoxFit.cover,
         );
       });
     } on Exception catch (ex) {
-      print(ex);
       var snackBar = SnackBar(
         content: Text(ex.toString()),
         backgroundColor: Colors.red,
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } finally {
+      setState(() => loading = false);
     }
   }
 
@@ -157,10 +160,12 @@ class _GenAiPageState extends State<GenAiPage> {
                 ),
               ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => verifyPlant(context),
-        child: Icon(Icons.camera_alt),
-      ),
+      floatingActionButton: loading == true
+          ? CircularProgressIndicator()
+          : FloatingActionButton(
+              onPressed: () => verifyPlant(context),
+              child: Icon(Icons.camera_alt),
+            ),
     );
   }
 }
