@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'login.dart';
 import 'register.dart';
 import 'gen-ai.dart';
-import 'details.dart';
 
 class App extends StatelessWidget {
   @override
@@ -15,7 +14,6 @@ class App extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
         '/lista': (context) => GenAiPage(),
-        '/details': (context) => DetailsPage(),
       },
       initialRoute: '/login',
     );

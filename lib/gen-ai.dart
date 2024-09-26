@@ -52,8 +52,7 @@ class _GenAiPageState extends State<GenAiPage> {
     final prompt =
         'Você é um especialista em botânica. Eu vou te enviar uma imagem de uma planta e você me responde, apenas se houver uma planta na image, qual é a planta e se ela está saudável ou não. Caso não esteja saudável, indique a doença e me dê dicas para melhorar sua saúde. Caso não encontre uma planta, retorne "Não encontrei nenhuma planta na imagem".';
 
-    // var imageInBytes = await image.readAsBytes();
-
+    // set content to Gemini, including prompt text and image.
     final content = [
       Content.multi([
         TextPart(prompt),
@@ -61,6 +60,7 @@ class _GenAiPageState extends State<GenAiPage> {
       ])
     ];
 
+    // invoke gemini to get response, in JSON format.
     final response = await model.generateContent(content);
 
     return response.text;
